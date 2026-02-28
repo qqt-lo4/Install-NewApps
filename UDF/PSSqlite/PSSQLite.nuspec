@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>PSSQLite</id>
+    <version>1.1.0</version>
+    <authors>Warren Frame</authors>
+    <owners>Warren Frame</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/RamblingCookieMonster/PSSQLite/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/RamblingCookieMonster/PSSQLite</projectUrl>
+    <description>Query SQLite databases</description>
+    <releaseNotes></releaseNotes>
+    <copyright></copyright>
+    <tags>sql sqlite Query Database PSModule PSIncludes_Function PSFunction_Invoke-SqliteBulkCopy PSFunction_Invoke-SqliteQuery PSFunction_New-SqliteConnection PSFunction_Out-DataTable PSFunction_Update-Sqlite PSCommand_Invoke-SqliteBulkCopy PSCommand_Invoke-SqliteQuery PSCommand_New-SqliteConnection PSCommand_Out-DataTable PSCommand_Update-Sqlite</tags>
+  </metadata>
+</package>

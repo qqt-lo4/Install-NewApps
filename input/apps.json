@@ -1,0 +1,550 @@
+[
+    {
+        "Category": "AudioVideo",
+        "Name": "Audacity",
+        "Id": "Audacity.Audacity",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "AudioVideo",
+        "Name": "OBS Studio",
+        "Id": "OBSProject.OBSStudio",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "AudioVideo",
+        "Name": "Kdenlive",
+        "Id": "KDE.Kdenlive",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "AudioVideo",
+        "Name": "K-Lite Mega Codec Pack",
+        "Id": "CodecGuide.K-LiteCodecPack.Mega",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "AudioVideo",
+        "Name": "Elgato Stream Deck",
+        "Id": "Elgato.StreamDeck",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Office",
+        "Name": "Adobe Acrobat Reader (64-bit)",
+        "Id": "Adobe.Acrobat.Reader.64-bit",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "Office",
+        "Name": "Ashampoo Burning Studio FREE",
+        "Id": "xpfm306ts4phh5",
+        "Scope": "machine",
+        "Source": "msstore"
+    },
+    {   
+		"Category": "Office",
+        "Name": "LibreOffice",
+        "Id": "TheDocumentFoundation.LibreOffice",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Office",
+        "Name": "draw.io",
+        "Id": "JGraph.Draw",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Office",
+        "Name": "Inkscape",
+        "Id": "Inkscape.Inkscape",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Office",
+        "Name": "NAPS2",
+        "Id": "Cyanfish.NAPS2",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Office",
+        "Name": "Scribus",
+        "Id": "Scribus.Scribus",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Office",
+        "Name": "Microsoft Sticky Notes",
+        "PackageName": "Microsoft.MicrosoftStickyNotes",
+        "Id": "9nblggh4qghw",
+        "Scope": "machine",
+        "Source": "msstore"
+    },
+	{
+        "Category": "Office",
+        "Name": "Office Deployment Tool",
+        "Id": "Microsoft.OfficeDeploymentTool",
+        "Scope": "machine",
+        "Source": "winget",
+		"DetectionScript": "Test-OfficeDeploymentTool"
+    },
+	{
+        "Category": "Office",
+        "Name": "Microsoft Office 2024",
+        "Id": "Microsoft.Office2024",
+        "Scope": "machine",
+        "Source": "odt",
+		"ODT": {
+			"Products": ["ProPlus2024Volume"],
+			"Language": "fr-fr",
+			"OfficeClientEdition": "64",
+			"Channel": "PerpetualVL2024"
+		},
+		"Requires": ["Microsoft.OfficeDeploymentTool"],
+		"Detection": {
+			"Name": "Microsoft Office LTSC * 2024 - *"
+		}
+    },
+	{
+        "Category": "Office",
+        "Name": "Microsoft Visio 2024",
+        "Id": "Microsoft.Visio2024",
+        "Scope": "machine",
+        "Source": "odt",
+		"ODT": {
+			"Products": ["VisioPro2024Volume"],
+			"Language": "fr-fr",
+			"OfficeClientEdition": "64",
+			"Channel": "PerpetualVL2024"
+		},
+		"Requires": ["Microsoft.OfficeDeploymentTool"],
+		"Detection": {
+			"Name": "Microsoft Visio * 2024 - *"
+		}
+    },
+	{
+        "Category": "Development",
+        "Name": "IconViewer",
+        "Id": "BotProductions.IconViewer",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "Development",
+        "Name": "Git",
+        "Id": "Git.Git",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "Development",
+        "Name": "JetBrains dotPeek",
+        "Id": "JetBrains.dotPeek",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Development",
+        "Name": "AutoIt",
+        "Id": "AutoIt.AutoIt",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Development",
+        "Name": "SciTE4AutoIt3",
+        "Id": "AutoIt.SciTE4AutoIt3",
+        "Scope": "machine",
+        "Source": "winget",
+		"Detection": {
+			"Name": "SciTE4AutoIt3*"
+		},
+		"Requires": ["AutoIt.AutoIt"]
+    },
+    {
+        "Category": "Development",
+        "Name": "DB Browser (SQLite)",
+        "Id": "DBBrowserForSQLite.DBBrowserForSQLite",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Development",
+        "Name": "Microsoft Visual Studio Code",
+        "Id": "Microsoft.VisualStudioCode",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Development",
+        "Name": "Claude Code",
+        "Id": "Anthropic.ClaudeCode",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Development",
+        "Name": "WSL",
+        "PackageName": "MicrosoftCorporationII.WindowsSubsystemForLinux",
+        "Id": "Microsoft.WSL",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Development",
+        "Name": "Resource Hacker",
+        "Id": "AngusJohnson.ResourceHacker",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Internet",
+        "Name": "AnyDesk",
+        "Id": "AnyDesk.AnyDesk",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+		"Category": "Internet",
+        "Name": "Chrome",
+        "Scope": "machine",
+        "Id": "Google.Chrome",
+        "Source": "winget"
+    },
+    {
+		"Category": "Internet",
+        "Name": "Mozilla Firefox",
+        "Scope": "machine",
+        "Id": "Mozilla.Firefox.fr",
+        "Source": "winget"
+    },
+    {
+        "Category": "Internet",
+        "Name": "Mozilla Thunderbird",
+        "Scope": "machine",
+        "Id": "Mozilla.Thunderbird.fr",
+        "Source": "winget"
+    },
+	{
+        "Category": "Internet",
+        "Name": "WhatsApp",
+        "Id": "9NKSQGP7F2NH",
+        "Scope": "machine",
+        "Source": "msstore",
+        "PackageName": "5319275A.WhatsAppDesktop"
+    },
+    {
+        "Category": "Internet",
+        "Name": "Discord",
+        "Id": "Discord.Discord",
+        "Scope": "user",
+        "Source": "winget"
+    },
+    {
+        "Category": "Internet",
+        "Name": "Telegram",
+        "Id": "Telegram.TelegramDesktop",
+        "Scope": "user",
+        "Source": "winget",
+		"Detection": {
+			"Name": "Telegram Desktop"
+		}
+    },
+    {
+        "Category": "Internet",
+        "Name": "Microsoft Teams",
+        "PackageName": "MSTeams",
+        "Id": "Microsoft.Teams",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "Games",
+        "Name": "Roblox",
+        "Id": "Roblox.Roblox",
+        "Scope": "user",
+        "Source": "winget",
+		"Detection": {
+			"Name": "Roblox Player*"
+		}
+    },
+	{
+        "Category": "Games",
+        "Name": "Minecraft",
+        "Id": "Mojang.MinecraftLauncher",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "Games",
+        "Name": "Epic Games Launcher",
+        "Id": "EpicGames.EpicGamesLauncher",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "Games",
+        "Name": "GOG Galaxy",
+        "Id": "GOG.Galaxy",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    	{
+        "Category": "Games",
+        "Name": "Steam",
+        "Id": "Valve.Steam",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "SystemTools",
+        "Name": "7-Zip",
+        "Scope": "machine",
+        "Id": "7zip.7zip",
+        "Source": "winget"
+    },
+    {
+        "Category": "SystemTools",
+        "Name": "Notepad++",
+        "Id": "Notepad++.Notepad++",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "SystemTools",
+        "Name": "PowerShell",
+        "Id": "Microsoft.PowerShell",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "SystemTools",
+        "Name": "Ant Renamer",
+        "Id": "AntSoftware.AntRenamer",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "SystemTools",
+        "Name": "KeePass",
+        "Id": "DominikReichl.KeePass",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "SystemTools",
+        "Name": "Oracle VirtualBox",
+        "Id": "Oracle.VirtualBox",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "SystemTools",
+        "Name": "Link Shell Extension",
+        "Id": "HermannSchinagl.LinkShellExtension",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "Administration",
+        "Name": "mRemoteNG",
+        "Id": "mRemoteNG.mRemoteNG",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "SystemTools",
+        "Name": "Recuva",
+        "Id": "Piriform.Recuva",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "SystemTools",
+        "Name": "PowerToys",
+        "Id": "Microsoft.PowerToys",
+        "Scope": "machine",
+        "Source": "winget",
+        "Detection": {
+			"Name": "PowerToys * x64"
+		}
+    },
+	{
+        "Category": "Administration",
+        "Name": "PuTTY",
+        "Id": "PuTTY.PuTTY",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "Photo",
+        "Name": "GIMP",
+        "Id": "GIMP.GIMP.3",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+	{
+        "Category": "Photo",
+        "Name": "PhotoDemon",
+        "Id": "tannerhelland.PhotoDemon",
+        "Scope": "machine",
+        "Source": "winget"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Active Directory",
+        "Id": "Rsat.ActiveDirectory.DS-LDS.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Certificate Services",
+        "Id": "Rsat.CertificateServices.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: DHCP Server Tools",
+        "Id": "Rsat.DHCP.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: DNS Server Tools",
+        "Id": "Rsat.Dns.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Failover Cluster Management",
+        "Id": "Rsat.FailoverCluster.Management.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: File Services",
+        "Id": "Rsat.FileServices.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Group Policy Management",
+        "Id": "Rsat.GroupPolicy.Management.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: IPAM client tool",
+        "Id": "Rsat.IPAM.Client.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Data Center Bridging LLDP Tools",
+        "Id": "Rsat.LLDP.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Network Controller Management Tools",
+        "Id": "Rsat.NetworkController.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Network Load Balancing Tools",
+        "Id": "Rsat.NetworkLoadBalancing.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Remote Access Management Tools",
+        "Id": "Rsat.RemoteAccess.Management.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Remote Desktop Services Tools",
+        "Id": "Rsat.RemoteDesktop.Services.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Server Manager",
+        "Id": "Rsat.ServerManager.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Storage Migration Service Tools",
+        "Id": "Rsat.StorageMigrationService.Management.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Storage Replica PowerShell Module",
+        "Id": "Rsat.StorageReplica.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Systems Insights PowerShell Module",
+        "Id": "Rsat.SystemInsights.Management.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: Volume Activation Tools",
+        "Id": "Rsat.VolumeActivation.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "Administration",
+        "Name": "RSAT: WSUS",
+        "Id": "Rsat.WSUS.Tools",
+        "Source": "windowscapability"
+    },
+    {
+        "Category": "SystemTools",
+        "Name": "Hyper-V",
+        "Id": "Microsoft-Hyper-V-All",
+        "Source": "windowsfeature",
+        "Requirements": [
+            {"Type": "WindowsEdition", "Values": ["Professional", "Enterprise", "Education", "ServerStandard", "ServerDatacenter"]},
+            {"Type": "Architecture", "Values": ["AMD64", "ARM64"]}
+        ]
+    },
+    {
+        "Category": "SystemTools",
+        "Name": "Windows Sandbox",
+        "Id": "Containers-DisposableClientVM",
+        "Source": "windowsfeature",
+        "Requirements": [
+            {"Type": "WindowsEdition", "Values": ["Professional", "Enterprise", "Education"]},
+            {"Type": "MinBuild", "Value": 18305}
+        ]
+    },
+    {
+        "Category": "SystemTools",
+        "Name": ".NET Framework 3.5",
+        "Id": "NetFx3",
+        "Source": "windowsfeature"
+    },
+    {
+        "Category": "Development",
+        "Name": "Telnet Client",
+        "Id": "TelnetClient",
+        "Source": "windowsfeature"
+    }
+]

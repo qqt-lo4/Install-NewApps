@@ -1,0 +1,10 @@
+{
+	"Hide": [
+		"Rsat.LLDP.Tools",
+		"Rsat.StorageMigrationService.Management.Tools",
+		"Rsat.StorageReplica.Tools"
+	],
+	"Packages": [
+		
+	]
+}
