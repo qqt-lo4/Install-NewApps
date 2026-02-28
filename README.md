@@ -4,7 +4,7 @@ A powerful PowerShell-based software installation manager with a modern WPF grap
 
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue)
 ![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D6)
-![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey)
+![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial-lightgrey)
 
 ## Features
 
@@ -42,11 +42,11 @@ A powerful PowerShell-based software installation manager with a modern WPF grap
 
 ## Documentation
 
-- [Installation Guide](INSTALLATION.md) - Detailed installation instructions
-- [Configuration Guide](CONFIGURATION.md) - How to configure and customize packages
-- [Architecture](ARCHITECTURE.md) - Technical architecture and design
-- [Function Reference](FUNCTIONS.md) - API documentation for main functions
-- [Localization](LOCALIZATION.md) - Adding new languages
+- [Installation Guide](doc/INSTALLATION.md) - Detailed installation instructions
+- [Configuration Guide](doc/CONFIGURATION.md) - How to configure and customize packages
+- [Architecture](doc/ARCHITECTURE.md) - Technical architecture and design
+- [Function Reference](doc/FUNCTIONS.md) - API documentation for main functions
+- [Localization](doc/LOCALIZATION.md) - Adding new languages
 
 ## Package Sources
 
@@ -78,11 +78,13 @@ Install-NewApps/
 │   ├── PSSomeGUIThings/         # WPF interface functions
 │   ├── PSSomeSystemThings/      # System info, environment management
 │   └── ...                      # Other utility modules
-├── ARCHITECTURE.md
-├── CONFIGURATION.md
-├── FUNCTIONS.md
-├── INSTALLATION.md
-└── LOCALIZATION.md
+├── doc/                         # Documentation
+│   ├── ARCHITECTURE.md
+│   ├── CONFIGURATION.md
+│   ├── FUNCTIONS.md
+│   ├── INSTALLATION.md
+│   └── LOCALIZATION.md
+└── LICENSE
 ```
 
 ## Usage
@@ -114,14 +116,6 @@ The default configuration includes more than 40 applications across categories:
 
 ## License
 
-This project is licensed under **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**.
+This project is licensed under **[PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)**.
 
-You are free to:
-- **Share** — copy and redistribute the material in any medium or format
-- **Adapt** — remix, transform, and build upon the material
-
-Under the following terms:
-- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made
-- **NonCommercial** — You may not use the material for commercial purposes
-
-Full license: https://creativecommons.org/licenses/by-nc/4.0/
+You are free to use, modify, and distribute this software for any **noncommercial purpose**. See [LICENSE](LICENSE) for full terms.

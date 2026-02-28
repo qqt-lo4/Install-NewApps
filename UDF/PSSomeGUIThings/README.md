@@ -446,7 +446,7 @@ New-WPFMessageBox -Title "Installation Complete" `
 
 The module automatically detects the Windows theme (dark/light) and provides appropriate colors.
 
-For a complete guide on the theming system — including color placeholders, the `New-ThemedWPFWindow` function, best practices, and migration steps — see [README-Theming.md](README-Theming.md).
+For a complete guide on the theming system — including color placeholders, the `New-ThemedWPFWindow` function, best practices, and migration steps — see [README-Theming.md](doc/README-Theming.md).
 
 ### Color Palette
 
