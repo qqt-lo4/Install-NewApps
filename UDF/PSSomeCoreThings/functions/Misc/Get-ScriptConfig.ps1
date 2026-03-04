@@ -1,4 +1,4 @@
-function Get-ScriptConfig {
+﻿function Get-ScriptConfig {
     <#
     .SYNOPSIS
         Loads configuration from a JSON file with fallback search locations
@@ -31,18 +31,37 @@ function Get-ScriptConfig {
     .EXAMPLE
         $config = Get-ScriptConfig
 
+    .PARAMETER ConfigFilePath
+        Direct path to a config file. Supports variables resolved by Resolve-PathWithVariables.
+        If provided and non-empty, skips the folder search entirely.
+
+    .PARAMETER PathOnly
+        Returns only the resolved config file path instead of its content.
+
     .EXAMPLE
         $config = Get-ScriptConfig -ConfigFileName "settings.json" -AppData -ToHashtable
 
+    .EXAMPLE
+        $config = Get-ScriptConfig -ConfigFilePath "%PSScriptRoot%\myconfig.json"
+
+    .EXAMPLE
+        $path = Get-ScriptConfig -PathOnly
+
     .NOTES
         Author  : Loïc Ade
-        Version : 1.0.0
+        Version : 1.1.0
+
+        1.0.0 - Initial version. Config file search in ScriptRoot, AppData, ProgramData.
+        1.1.0 (2026-03-03) - Added -ConfigFilePath parameter with Resolve-PathWithVariables support.
+                           - Added -PathOnly parameter to return the resolved file path only.
     #>
 
     Param(
         [string]$ConfigFileName = "config.json",
         [switch]$ToHashtable,
         [string]$DevConfigFolderName = "input",
+        [string]$ConfigFilePath,
+        [switch]$PathOnly,
         [switch]$ScriptRoot,
         [switch]$AppData,
         [switch]$ProgramData
@@ -83,26 +102,44 @@ function Get-ScriptConfig {
     }
     Process {
         $sConfigFilePath = ""
-        foreach ($sFolderToTest in $aFoldersToTest) {
-            $sFolderPath = switch ($sFolderToTest) {
-                "ScriptRoot" { Get-RootScriptPath }
-                "AppData" { $env:APPDATA + "\"}
-                "ProgramData" { $env:ProgramData + "\"}
+        $sDefaultFilePath = ""
+        if (-not [string]::IsNullOrEmpty($ConfigFilePath)) {
+            $sResolvedPath = Resolve-PathWithVariables -Path $ConfigFilePath
+            $sDefaultFilePath = $sResolvedPath
+            if (Test-Path -Path $sResolvedPath -PathType Leaf) {
+                $sConfigFilePath = $sResolvedPath
             }
-            $sConfigFilePath = Test-GetScriptConfig -ConfigFileName $ConfigFileName -DevConfigFolderName $DevConfigFolderName -FolderPath $sFolderPath
-            if ($sConfigFilePath -ne "") {
-                break
+        } else {
+            foreach ($sFolderToTest in $aFoldersToTest) {
+                $sFolderPath = switch ($sFolderToTest) {
+                    "ScriptRoot" { Get-RootScriptPath }
+                    "AppData" { $env:APPDATA + "\"}
+                    "ProgramData" { $env:ProgramData + "\"}
+                }
+                if ($sDefaultFilePath -eq "") {
+                    $sDefaultFilePath = $sFolderPath + $ConfigFileName
+                }
+                $sConfigFilePath = Test-GetScriptConfig -ConfigFileName $ConfigFileName -DevConfigFolderName $DevConfigFolderName -FolderPath $sFolderPath
+                if ($sConfigFilePath -ne "") {
+                    break
+                }
             }
         }
     }
     End {
         if ($sConfigFilePath -ne "") {
+            if ($PathOnly) {
+                return $sConfigFilePath
+            }
             $oResult = Get-Content -Path $sConfigFilePath | ConvertFrom-Json
             if ($ToHashtable) {
                 $oResult = $oResult | ConvertTo-Hashtable
             }
             return $oResult
         } else {
+            if ($PathOnly) {
+                return $sDefaultFilePath
+            }
             return $null
         }
     }
