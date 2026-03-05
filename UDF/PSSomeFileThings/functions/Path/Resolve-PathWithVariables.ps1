@@ -25,16 +25,23 @@ function Resolve-PathWithVariables {
     .EXAMPLE
         Resolve-PathWithVariables -Path "%CUSTOMVAR%\file.txt" -Hashtable @{CUSTOMVAR="C:\MyPath"}
 
+    .EXAMPLE
+        Resolve-PathWithVariables -Path "%PSScriptRoot%\config.json"
+
+    .EXAMPLE
+        Resolve-PathWithVariables -Path "%PSScriptRoot%\..\data\file.txt" -ToAbsolute
+
     .NOTES
         Author  : Loïc Ade
-        Version : 1.0.0
+        Version : 1.1.0
     #>
     Param(
         [Parameter(Mandatory, Position = 0)]
         [string]$Path,
         [Parameter(Position = 1)]
         [System.EnvironmentVariableTarget]$EnvironmentVariableTarget,
-        [hashtable]$Hashtable
+        [hashtable]$Hashtable,
+        [switch]$ToAbsolute
     )
     $sResult = $Path
     # Replace environment variables
@@ -53,6 +60,11 @@ function Resolve-PathWithVariables {
         }
     }
 
+    # Replace %PSScriptRoot% with $PSScriptRoot
+    if ($sResult -like "*%PSScriptRoot%*") {
+        $sResult = $sResult -ireplace "%PSScriptRoot%", $PSScriptRoot
+    }
+
     # Replace datetime variables
     $aDateMatches = $sResult | Select-String "%d:([^%]+)%" -AllMatches
     foreach ($m in $aDateMatches.matches) {
@@ -62,6 +74,11 @@ function Resolve-PathWithVariables {
     # Replace variables included in $Hashtable
     foreach ($key in $Hashtable.Keys) {
         $sResult = $sResult -ireplace ("%" + $key + "%"), $Hashtable[$key]
+    }
+
+    # Resolve to absolute path if requested
+    if ($ToAbsolute) {
+        $sResult = Resolve-RelativePath -From (Get-Location).Path -To $sResult
     }
 
     # return $result
