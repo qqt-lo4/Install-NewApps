@@ -29,7 +29,7 @@ function Get-ScriptDir {
         [String]. Directory path.
 
     .EXAMPLE
-        $inputDir = Get-ScriptDir -InputDir -FullPath
+        $inputDir = Get-ScriptDir -InputDir
 
     .EXAMPLE
         $toolsDir = Get-ScriptDir -ToolsDir -ToolName "7zip"
@@ -37,6 +37,11 @@ function Get-ScriptDir {
     .NOTES
         Author  : Loïc Ade
         Version : 1.0.0
+
+        1.0.0 - First version
+        1.1.0 (2026-03-05)
+            - Corrected bugs of Get-RootScriptPath
+            - Removes -FullPath parameter (always returns full path)
     #>
 
     Param(
