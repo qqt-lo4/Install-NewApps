@@ -41,7 +41,7 @@ function Get-Translations {
     }
 
     # Determine locales directory using Get-ScriptDir -InputDir
-    $inputDir = Get-ScriptDir -InputDir -FullPath
+    $inputDir = Get-ScriptDir -InputDir
     $localesDir = Join-Path $inputDir "lang"
 
     # Build file path

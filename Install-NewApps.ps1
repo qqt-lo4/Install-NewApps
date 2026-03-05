@@ -1,13 +1,26 @@
-﻿#region Includes
+﻿$iModulesCount = 9
+$i = 0
+
+#region Includes
+Write-Progress -Activity "Loading script modules" -Status "PSSomeAppsThings" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\PSSomeAppsThings -WarningAction SilentlyContinue
+Write-Progress -Activity "Loading script modules" -Status "PSSomeCoreThings" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\PSSomeCoreThings
+Write-Progress -Activity "Loading script modules" -Status "PSSomeDataThings" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\PSSomeDataThings
+Write-Progress -Activity "Loading script modules" -Status "PSSomeEngineThings" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\PSSomeEngineThings -WarningAction SilentlyContinue
+Write-Progress -Activity "Loading script modules" -Status "PSSomeFileThings" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\PSSomeFileThings
+Write-Progress -Activity "Loading script modules" -Status "PSSomeGUIThings" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\PSSomeGUIThings
+Write-Progress -Activity "Loading script modules" -Status "PSSomeSystemThings" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\PSSomeSystemThings -WarningAction SilentlyContinue
+Write-Progress -Activity "Loading script modules" -Status "PSSQLite" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\PSSQLite
+Write-Progress -Activity "Loading script modules" -Status "powershell-yaml" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\powershell-yaml
+Write-Progress -Activity "Loading script modules" -Status "Loading end" -PercentComplete 100 -Completed
 #endregion Includes
 
 #region script info
@@ -2868,7 +2881,7 @@ function Show-PackageManagerUI {
 
     # Initialize language selector - dynamically load from lang folder
     $availableLanguages = @()
-    $langFolder = Join-Path (Get-ScriptDir -InputDir -FullPath) "lang"
+    $langFolder = Join-Path (Get-ScriptDir -InputDir) "lang"
 
     if (Test-Path $langFolder) {
         $langFiles = Get-ChildItem -Path $langFolder -Filter "*.json"
@@ -3476,7 +3489,7 @@ foreach ($pkg in $packages) {
 }
 
 $iconFolder = (Get-ScriptDir -InputDir) + "\icons\"
-$iconFile = (Get-ScriptDir -InputDir -FullPath) + "\" + (Get-RootScriptName) + ".ico"
+$iconFile = (Get-ScriptDir -InputDir) + "\" + (Get-RootScriptName) + ".ico"
 # Show loading window pour l'import des modules uniquement
 $loadingWindow = Show-LoadingWindow -Title (tr 'UI.Initialization') `
                                     -Message (tr 'UI.ImportingModules') `
