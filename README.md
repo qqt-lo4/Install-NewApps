@@ -6,6 +6,10 @@ A powerful PowerShell-based software installation manager with a modern WPF grap
 ![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D6)
 ![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial-lightgrey)
 
+## Screenshot
+
+![Main Window](doc/Images/MainWindow.png)
+
 ## Features
 
 - **Multi-Source Support**: Install packages from WinGet, Microsoft Store, and Office Deployment Tool
