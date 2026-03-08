@@ -36,24 +36,28 @@ function Get-ScriptDir {
 
     .NOTES
         Author  : Loïc Ade
-        Version : 1.0.0
+        Version : 1.2.0
 
         1.0.0 - First version
         1.1.0 (2026-03-05)
             - Corrected bugs of Get-RootScriptPath
             - Removes -FullPath parameter (always returns full path)
+        1.2.0 (2026-03-08)
+            - InputDir, OutputDir and WorkingDir can be overridden by root script parameters
+            - ParameterSetNames renamed to match parameter names
+            - Folder name derived from ParameterSetName
     #>
 
     Param(
-        [Parameter(ParameterSetName = "input", Mandatory)]
+        [Parameter(ParameterSetName = "InputDir", Mandatory)]
         [switch]$InputDir,
-        [Parameter(ParameterSetName = "output", Mandatory)]
+        [Parameter(ParameterSetName = "OutputDir", Mandatory)]
         [switch]$OutputDir,
-        [Parameter(ParameterSetName = "working_dir", Mandatory)]
+        [Parameter(ParameterSetName = "WorkingDir", Mandatory)]
         [switch]$WorkingDir,
-        [Parameter(ParameterSetName = "tools", Mandatory)]
+        [Parameter(ParameterSetName = "ToolsDir", Mandatory)]
         [switch]$ToolsDir,
-        [Parameter(ParameterSetName = "tools", Mandatory)]
+        [Parameter(ParameterSetName = "ToolsDir", Mandatory)]
         [string]$ToolName
     )
     Begin {
@@ -70,13 +74,23 @@ function Get-ScriptDir {
     }
     Process {
         $sRootPath = Get-RootScriptPath
-        $sResult = $sRootPath + "\" + $PSCmdlet.ParameterSetName 
-        if ($PSCmdlet.ParameterSetName -eq "tools") {
+
+        if ($InputDir -or $OutputDir -or $WorkingDir) {
+            $rootArgs = Get-RootScriptArguments
+            if (-not [string]::IsNullOrEmpty($rootArgs[$PSCmdlet.ParameterSetName]) -and (Test-Path $rootArgs[$PSCmdlet.ParameterSetName] -PathType Container)) {
+                return $rootArgs[$PSCmdlet.ParameterSetName]
+            }
+        }
+
+        $sFolderName = $PSCmdlet.ParameterSetName -replace 'Dir$', ''
+        $sFolderName = $sFolderName.Substring(0, 1).ToLower() + $sFolderName.Substring(1)
+        $sResult = $sRootPath + "\" + $sFolderName
+        if ($PSCmdlet.ParameterSetName -eq "ToolsDir") {
             $sResult += "\" + $ToolName
         }
         if (Test-Path ($sRootPath + "\.devfolder")) {
             $sResult = switch ($PSCmdlet.ParameterSetName) {
-                "tools" { $sResult } 
+                "ToolsDir" { $sResult }
                 default {$sResult + "\" + (Get-RootScriptName)}
             }
         }

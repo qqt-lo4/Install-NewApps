@@ -1,10 +1,15 @@
 # Install-NewApps
 
-A powerful PowerShell-based software installation manager with a modern WPF graphical interface. Install applications from multiple sources including WinGet, Microsoft Store, and Office Deployment Tool with a single UAC prompt.
+<div>
+  <img src="input/app-wide.png" alt="icon" width="128" align="left" style="margin-right: 16px;" />
 
-![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue)
-![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D6)
-![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial-lightgrey)
+  A powerful PowerShell-based software installation manager with a modern WPF graphical interface. Install applications from multiple sources including WinGet, Microsoft Store, and Office Deployment Tool with a single UAC prompt.
+
+  ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue)
+  ![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D6)
+  ![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial-lightgrey)
+</div>
+<br clear="left" />
 
 ## Screenshot
 
