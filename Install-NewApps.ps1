@@ -208,7 +208,7 @@ function Install-Package {
                     throw "Installer information not found for package $($Package.Name)"
                 }
 
-                Install-WingetPackageFromInstaller -Package $Package -Credential $Credential -TempPath $TempPath
+                Install-PackageFromInstaller -Package $Package -Credential $Credential -TempPath $TempPath
             }
             "msstore" {
                 Install-MSStorePackage -Package $Package
@@ -219,6 +219,62 @@ function Install-Package {
                 }
 
                 Install-OfficeWithODT -Package $Package -TempPath $TempPath
+            }
+            "url" {
+                if (-not $Package.UrlSource) {
+                    throw "UrlSource configuration not found for package $($Package.Name)"
+                }
+
+                # Fetch the page and resolve download URL via ScriptBlock
+                Write-Host "  Fetching page: $($Package.UrlSource.Url)" -ForegroundColor Gray
+                $ProgressPreference = 'SilentlyContinue'
+                $Response = Invoke-WebRequest -UseBasicParsing -Uri $Package.UrlSource.Url
+                $ProgressPreference = 'Continue'
+
+                $scriptBlock = [ScriptBlock]::Create($Package.UrlSource.ScriptBlock)
+                $downloadUrl = & $scriptBlock
+
+                if (-not $downloadUrl) {
+                    throw "ScriptBlock did not return a download URL for package $($Package.Name)"
+                }
+
+                # Determine silent args from config or defaults
+                $installerType = $Package.UrlSource.InstallerType
+                $silentArgs = if ($Package.UrlSource.SilentArgs) {
+                    $Package.UrlSource.SilentArgs
+                } elseif ($installerType) {
+                    Get-InstallerDefaultSilentSwitch -InstallerType $installerType
+                } else {
+                    $null
+                }
+
+                # Build Installer property in the same format as winget
+                $Package.Installer = @{
+                    URL           = $downloadUrl
+                    Silent        = $silentArgs
+                    Scope         = $Package.Scope
+                    InstallerType = $installerType
+                }
+
+                Install-PackageFromInstaller -Package $Package -Credential $Credential -TempPath $TempPath
+            }
+            "chocolatey" {
+                # Ensure Chocolatey is installed
+                if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+                    throw "Chocolatey is not installed. Add it as a dependency via Requires."
+                }
+
+                Write-Host "  Installing via Chocolatey: $($Package.Id)" -ForegroundColor Gray
+                $chocoArgs = @("install", $Package.Id, "-y", "--no-progress")
+                if ($Package.ChocolateyArgs) {
+                    $chocoArgs += ($Package.ChocolateyArgs -split ' ' | Where-Object { $_ -ne '' })
+                }
+
+                $process = Start-Process -FilePath "choco" -ArgumentList $chocoArgs -Wait -PassThru -WindowStyle Hidden
+                if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 3010) {
+                    throw "Chocolatey install failed with exit code: $($process.ExitCode)"
+                }
+                $script:LastInstallExitCode = $process.ExitCode
             }
             default {
                 throw "Unknown package source: $($Package.Source)"
@@ -239,7 +295,7 @@ function Install-Package {
     }
 }
 
-function Install-WingetPackageFromInstaller {
+function Install-PackageFromInstaller {
     <#
     .SYNOPSIS
         Downloads and installs a winget package using the Installer information
@@ -747,6 +803,41 @@ $msStoreFunctionsCode
         $packageIndex = 0
         foreach ($package in $machinePackages) {
             $packageIndex++
+
+            # For URL source, resolve download URL via scraping and build Installer property
+            if ($package.Source -eq "url" -and $package.UrlSource) {
+                Write-Host "  Resolving download URL for $($package.Name)..." -ForegroundColor Gray
+                $ProgressPreference = 'SilentlyContinue'
+                $Response = Invoke-WebRequest -UseBasicParsing -Uri $package.UrlSource.Url
+                $ProgressPreference = 'Continue'
+
+                $scriptBlock = [ScriptBlock]::Create($package.UrlSource.ScriptBlock)
+                $resolvedUrl = & $scriptBlock
+
+                if (-not $resolvedUrl) {
+                    Write-Warning "Could not resolve download URL for $($package.Name), skipping"
+                    continue
+                }
+
+                $urlInstallerType = $package.UrlSource.InstallerType
+                $urlSilentArgs = if ($package.UrlSource.SilentArgs) {
+                    $package.UrlSource.SilentArgs
+                } elseif ($urlInstallerType) {
+                    Get-InstallerDefaultSilentSwitch -InstallerType $urlInstallerType
+                } else {
+                    $null
+                }
+
+                $package.Installer = @{
+                    URL           = $resolvedUrl
+                    Silent        = $urlSilentArgs
+                    Scope         = $package.Scope
+                    InstallerType = $urlInstallerType
+                }
+
+                Write-Host "  Resolved: $resolvedUrl" -ForegroundColor Gray
+            }
+
             $installerUrl = $package.Installer.URL
             $silentArgs = $package.Installer.Silent
             $packageId = $package.Id
@@ -785,7 +876,7 @@ $msStoreFunctionsCode
                 }
             }
 
-            if ($packageSource -eq "winget") {
+            if ($packageSource -eq "winget" -or $packageSource -eq "url") {
                 $escapedUrl = $installerUrl -replace "'", "''"
                 $escapedSilent = $silentArgs -replace "'", "''"
                 $escapedPackageName = $packageName -replace "'", "''"
@@ -1164,6 +1255,56 @@ try {
         if (`$reboot) { Write-HostAndLog "  Success! (reboot required)" -ForegroundColor Yellow }
         else { Write-HostAndLog "  Success!" -ForegroundColor Green }
         `$results += [pscustomobject]@{Name='$packageName'; Id='$packageId'; Source='$packageSource'; Success=`$true; RebootRequired=`$reboot}
+    }
+}
+catch {
+    Write-HostAndLog "  Error: `$(`$_.Exception.Message)" -ForegroundColor Red
+    Write-HostAndLog "  Error type: `$(`$_.Exception.GetType().FullName)" -ForegroundColor Red
+    if (`$_.Exception.InnerException) {
+        Write-HostAndLog "  Inner error: `$(`$_.Exception.InnerException.Message)" -ForegroundColor Red
+    }
+    `$results += [pscustomobject]@{Name='$packageName'; Id='$packageId'; Source='$packageSource'; Success=`$false; RebootRequired=`$false}
+}
+
+"@
+            }
+            elseif ($packageSource -eq "chocolatey") {
+                $escapedChocoArgs = if ($package.ChocolateyArgs) { ($package.ChocolateyArgs -replace "'", "''") } else { "" }
+
+                $scriptContent += @"
+
+`$currentMachinePackage++
+Update-Progress -PackageName '$packageName' -Current `$currentMachinePackage -Total `$totalMachinePackages
+
+Write-HostAndLog "Installing via Chocolatey: $packageName" -ForegroundColor Cyan
+Write-HostAndLog "  Package ID: $packageId" -ForegroundColor Gray
+
+try {
+    if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+        throw "Chocolatey is not installed"
+    }
+
+    `$chocoArgs = @("install", "$packageId", "-y", "--no-progress")
+    if ('$escapedChocoArgs') {
+        `$chocoArgs += ('$escapedChocoArgs' -split ' ' | Where-Object { `$_ -ne '' })
+    }
+
+    Write-HostAndLog "  Running: choco `$(`$chocoArgs -join ' ')" -ForegroundColor Gray
+    `$process = Start-Process -FilePath "choco" -ArgumentList `$chocoArgs -PassThru -WindowStyle Hidden
+
+    while (-not `$process.HasExited) {
+        Start-Sleep -Milliseconds 500
+    }
+
+    if (`$process.ExitCode -eq 0 -or `$process.ExitCode -eq 3010) {
+        `$reboot = (`$process.ExitCode -eq 3010)
+        if (`$reboot) { Write-HostAndLog "  Success! (reboot required)" -ForegroundColor Yellow }
+        else { Write-HostAndLog "  Success!" -ForegroundColor Green }
+        `$results += [pscustomobject]@{Name='$packageName'; Id='$packageId'; Source='$packageSource'; Success=`$true; RebootRequired=`$reboot}
+    }
+    else {
+        Write-HostAndLog "  Failed with exit code: `$(`$process.ExitCode)" -ForegroundColor Red
+        `$results += [pscustomobject]@{Name='$packageName'; Id='$packageId'; Source='$packageSource'; Success=`$false; RebootRequired=`$false}
     }
 }
 catch {

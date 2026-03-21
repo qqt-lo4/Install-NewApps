@@ -17,7 +17,7 @@
 
 ## Features
 
-- **Multi-Source Support**: Install packages from WinGet, Microsoft Store, and Office Deployment Tool
+- **Multi-Source Support**: Install packages from WinGet, Microsoft Store, Office Deployment Tool, Chocolatey, and Windows Features/Capabilities
 - **Modern WPF Interface**: Clean, theme-aware GUI with dark/light mode support
 - **Single UAC Prompt**: Batch install multiple machine-scoped packages with one elevation
 - **Dependency Resolution**: Automatic detection and installation of package dependencies
@@ -40,7 +40,9 @@
    git clone https://github.com/qqt-lo4/Install-NewApps.git
    ```
 
-2. Run the script:
+2. Run the application:
+   - **Simple**: Double-click `Install-NewApps.exe`
+   - **PowerShell**:
    ```powershell
    .\Install-NewApps.ps1
    ```
@@ -65,6 +67,12 @@ Standard Windows Package Manager packages with silent installation support. Supp
 ### Microsoft Store
 Windows Store applications installed via MSA token authentication. Includes support for Win32 apps distributed through the Store.
 
+### Chocolatey
+Community package manager for Windows. Used for packages not available on WinGet or the Microsoft Store (e.g., FileZilla, CDBurnerXP). Chocolatey is installed automatically via WinGet as a prerequisite.
+
+### Windows Features & Capabilities
+Native Windows components such as Hyper-V, Windows Sandbox, .NET Framework 3.5, Telnet Client, and RSAT tools. Supports both optional features (`windowsfeature`) and on-demand capabilities (`windowscapability`), with prerequisite checks (edition, architecture, build number).
+
 ### Office Deployment Tool (ODT)
 Microsoft Office products with customizable XML configuration. Supports multiple products, languages, and deployment channels.
 
@@ -82,7 +90,7 @@ Install-NewApps/
 │       ├── en-US.json           # English translations
 │       └── fr-FR.json           # French translations
 ├── UDF/                         # Reusable function modules
-│   ├── PSSomeAppsThings/        # WinGet, Store, ODT, program detection
+│   ├── PSSomeAppsThings/        # WinGet, Store, ODT, Chocolatey, program detection
 │   ├── PSSomeCoreThings/        # Localization, script configuration
 │   ├── PSSomeGUIThings/         # WPF interface functions
 │   ├── PSSomeSystemThings/      # System info, environment management
@@ -111,17 +119,18 @@ Install-NewApps/
 
 ## Supported Applications
 
-The default configuration includes more than 40 applications across categories:
+The default configuration includes more than 50 applications across categories:
 
 | Category | Examples |
 |----------|----------|
-| Office | LibreOffice, draw.io, Microsoft Office 2024 |
-| Development | Git, VS Code, Visual Studio, AutoIt |
-| Internet | Chrome, Firefox, Telegram, Discord |
-| System Tools | 7-Zip, Notepad++, PowerShell, VirtualBox |
+| Office | LibreOffice, draw.io, Microsoft Office 2024, CDBurnerXP |
+| Development | Git, VS Code, AutoIt, Claude Code |
+| Internet | Chrome, Firefox, Telegram, Discord, FileZilla |
+| System Tools | 7-Zip, Notepad++, PowerShell, VirtualBox, Chocolatey |
 | Audio/Video | Audacity, OBS Studio, VLC, Kdenlive |
-| Photo | GIMP, PhotoDemon |
-| Games | Minecraft, Epic Games Launcher |
+| Photo | GIMP, PhotoDemon, Inkscape |
+| Games | Minecraft, Epic Games Launcher, Steam |
+| Administration | mRemoteNG, PuTTY, RSAT tools |
 
 ## License
 

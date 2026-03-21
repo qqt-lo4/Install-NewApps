@@ -96,6 +96,41 @@ The package catalog is defined in `input/apps.json`. This JSON file contains an 
 }
 ```
 
+### Chocolatey Package
+
+For packages not available on WinGet or the Microsoft Store, Chocolatey can be used as source. Chocolatey is installed automatically via WinGet as a dependency.
+
+```json
+{
+    "Category": "Internet",
+    "Name": "FileZilla",
+    "Id": "filezilla",
+    "Scope": "machine",
+    "Source": "chocolatey",
+    "Requires": ["Chocolatey.Chocolatey"],
+    "Detection": {
+        "Name": "FileZilla*"
+    }
+}
+```
+
+The `Id` must match the Chocolatey package ID (see [community.chocolatey.org](https://community.chocolatey.org/packages)).
+
+Chocolatey must be declared as a dependency via `Requires`:
+
+```json
+{
+    "Category": "SystemTools",
+    "Name": "Chocolatey",
+    "Id": "Chocolatey.Chocolatey",
+    "Scope": "machine",
+    "Source": "winget",
+    "Detection": {
+        "Name": "Chocolatey*"
+    }
+}
+```
+
 ## Property Reference
 
 ### Required Properties
@@ -104,9 +139,9 @@ The package catalog is defined in `input/apps.json`. This JSON file contains an 
 |----------|------|-------------|
 | `Category` | string | Package category for UI grouping |
 | `Name` | string | Display name shown in the GUI |
-| `Id` | string | Package identifier (WinGet ID or Store Product ID) |
+| `Id` | string | Package identifier (WinGet ID, Store Product ID, or Chocolatey package ID) |
 | `Scope` | string | Installation scope: `machine` or `user` |
-| `Source` | string | Package source: `winget`, `msstore`, or `odt` |
+| `Source` | string | Package source: `winget`, `msstore`, `odt`, or `chocolatey` |
 
 ### Optional Properties
 
@@ -173,6 +208,17 @@ Windows Store applications. Use the Store Product ID (found in the Store URL).
 
 Example URL: `https://www.microsoft.com/store/productId/9NBLGGH4QGH`
 Product ID: `9NBLGGH4QGH`
+
+### Chocolatey
+
+Community package manager for Windows. Used for packages not available on WinGet or the Microsoft Store. Chocolatey itself is installed via WinGet as a prerequisite.
+
+```powershell
+# Find Chocolatey package IDs
+choco search <name>
+```
+
+Or browse [community.chocolatey.org/packages](https://community.chocolatey.org/packages).
 
 ### Office Deployment Tool (odt)
 

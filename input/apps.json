@@ -27,6 +27,13 @@
         "Scope": "machine",
         "Source": "winget"
     },
+	{
+        "Category": "AudioVideo",
+        "Name": "VLC",
+        "Id": "VideoLAN.VLC",
+        "Scope": "machine",
+        "Source": "winget"
+    },
     {
         "Category": "AudioVideo",
         "Name": "Elgato Stream Deck",
@@ -88,6 +95,14 @@
         "Name": "Microsoft Sticky Notes",
         "PackageName": "Microsoft.MicrosoftStickyNotes",
         "Id": "9nblggh4qghw",
+        "Scope": "machine",
+        "Source": "msstore"
+    },
+    {
+        "Category": "Office",
+        "Name": "Microsoft Loop",
+        "PackageName": "Microsoft.MicrosoftLoop",
+        "Id": "9P1HQ5TQZMGD",
         "Scope": "machine",
         "Source": "msstore"
     },
@@ -269,6 +284,13 @@
         "Scope": "machine",
         "Source": "winget"
     },
+    {
+        "Category": "Internet",
+        "Name": "WinSCP",
+        "Id": "WinSCP.WinSCP",
+        "Scope": "machine",
+        "Source": "winget"
+    },
 	{
         "Category": "Games",
         "Name": "Roblox",
@@ -386,6 +408,38 @@
         "Id": "PuTTY.PuTTY",
         "Scope": "machine",
         "Source": "winget"
+    },
+	{
+        "Category": "SystemTools",
+        "Name": "Chocolatey",
+        "Id": "Chocolatey.Chocolatey",
+        "Scope": "machine",
+        "Source": "winget",
+		"Detection": {
+            "Name": "Chocolatey*"
+        }
+    },
+	{
+        "Category": "Internet",
+        "Name": "FileZilla",
+        "Id": "filezilla",
+        "Scope": "machine",
+        "Source": "chocolatey",
+        "Requires": ["Chocolatey.Chocolatey"],
+        "Detection": {
+            "Name": "FileZilla*"
+        }
+    },
+	{
+        "Category": "Office",
+        "Name": "CDBurnerXP",
+        "Id": "cdburnerxp",
+        "Scope": "machine",
+        "Source": "chocolatey",
+        "Requires": ["Chocolatey.Chocolatey"],
+        "Detection": {
+            "Name": "CDBurnerXP*"
+        }
     },
 	{
         "Category": "Photo",
