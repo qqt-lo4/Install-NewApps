@@ -3,7 +3,7 @@
 <div>
   <img src="input/app-wide.png" alt="icon" width="128" align="left" style="margin-right: 16px;" />
 
-  A powerful PowerShell-based software installation manager with a modern WPF graphical interface. Install applications from multiple sources including WinGet, Microsoft Store, and Office Deployment Tool with a single UAC prompt.
+  A powerful PowerShell-based software installation manager with a modern WPF graphical interface. Install applications from multiple sources including WinGet, Microsoft Store, Office Deployment Tool, and Chocolatey with a single UAC prompt.
 
   ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue)
   ![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D6)
@@ -24,7 +24,9 @@
 - **Portable Package Support**: Install and configure portable applications with PATH management
 - **Localization**: Full English and French language support
 - **Installation Detection**: Intelligent detection of already-installed software
-- **Category Filtering**: Organize packages by category (Office, Development, Internet, etc.)
+- **Category Filtering**: Organize packages by category with search functionality
+- **Automatic Logging**: Installation logs saved to `%TEMP%\Install-NewApps\` for troubleshooting
+- **Standalone EXE**: Includes a compiled launcher for easy execution without PowerShell knowledge
 
 ## Requirements
 
@@ -81,9 +83,11 @@ Microsoft Office products with customizable XML configuration. Supports multiple
 ```
 Install-NewApps/
 ├── Install-NewApps.ps1          # Main application script
+├── Install-NewApps.exe          # Standalone launcher (calls the PS1)
+├── .gitignore
 ├── input/
 │   ├── apps.json                # Package definitions
-│   ├── apps_custom.json         # Custom package overrides
+│   ├── apps_custom.json         # Custom package overrides (hide/add packages)
 │   ├── Install-NewApps.ico      # Application icon
 │   ├── icons/                   # Package icons (PNG)
 │   └── lang/
@@ -91,10 +95,15 @@ Install-NewApps/
 │       └── fr-FR.json           # French translations
 ├── UDF/                         # Reusable function modules
 │   ├── PSSomeAppsThings/        # WinGet, Store, ODT, Chocolatey, program detection
+│   ├── PSSomeAPIThings/         # API helper functions
 │   ├── PSSomeCoreThings/        # Localization, script configuration
+│   ├── PSSomeDataThings/        # Data conversion (ConvertTo-Hashtable, etc.)
+│   ├── PSSomeEngineThings/      # Module management, script engine utilities
+│   ├── PSSomeFileThings/        # File operations
 │   ├── PSSomeGUIThings/         # WPF interface functions
 │   ├── PSSomeSystemThings/      # System info, environment management
-│   └── ...                      # Other utility modules
+│   ├── PSSqlite/                # SQLite database access
+│   └── powershell-yaml/         # YAML parsing (bundled)
 ├── doc/                         # Documentation
 │   ├── ARCHITECTURE.md
 │   ├── CONFIGURATION.md
@@ -106,31 +115,32 @@ Install-NewApps/
 
 ## Usage
 
-### Basic Usage
+The entire project folder is required — the script depends on the `UDF/` modules and `input/` configuration files.
+
+### Via the EXE launcher
+Double-click `Install-NewApps.exe` — this is the simplest way for end users.
+
+### Via PowerShell
 ```powershell
-# Launch the GUI
 .\Install-NewApps.ps1
 ```
 
-### With Verbose Output
-```powershell
-.\Install-NewApps.ps1 -Verbose
-```
+Logs are automatically saved to `%TEMP%\Install-NewApps\` with a timestamp.
 
 ## Supported Applications
 
-The default configuration includes more than 50 applications across categories:
+The default configuration includes over 75 applications across categories:
 
 | Category | Examples |
 |----------|----------|
-| Office | LibreOffice, draw.io, Microsoft Office 2024, CDBurnerXP |
-| Development | Git, VS Code, AutoIt, Claude Code |
-| Internet | Chrome, Firefox, Telegram, Discord, FileZilla |
-| System Tools | 7-Zip, Notepad++, PowerShell, VirtualBox, Chocolatey |
-| Audio/Video | Audacity, OBS Studio, VLC, Kdenlive |
-| Photo | GIMP, PhotoDemon, Inkscape |
-| Games | Minecraft, Epic Games Launcher, Steam |
 | Administration | mRemoteNG, PuTTY, RSAT tools |
+| Audio/Video | Audacity, OBS Studio, Kdenlive, K-Lite Mega Codec Pack |
+| Development | Git, VS Code, AutoIt, Claude Code |
+| Games | Minecraft, Epic Games Launcher, Roblox, GOG Galaxy |
+| Internet | Chrome, Firefox, Telegram, Discord, FileZilla |
+| Office | LibreOffice, draw.io, Microsoft Office 2024, CDBurnerXP |
+| Photo | GIMP, PhotoDemon, Inkscape |
+| System Tools | 7-Zip, Notepad++, PowerShell, Chocolatey |
 
 ## License
 

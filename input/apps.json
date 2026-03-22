@@ -264,7 +264,8 @@
         "Name": "Discord",
         "Id": "Discord.Discord",
         "Scope": "user",
-        "Source": "winget"
+        "Source": "script",
+        "InstallScript": "winget install Discord.Discord --silent --accept-package-agreements --accept-source-agreements"
     },
     {
         "Category": "Internet",

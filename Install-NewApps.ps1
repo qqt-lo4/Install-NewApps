@@ -26,6 +26,12 @@ Import-Module $PSScriptRoot\UDF\PSSQLite -Force
 Write-Progress -Activity "Loading script modules" -Status "powershell-yaml" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\powershell-yaml -Force
 Write-Progress -Activity "Loading script modules" -Status "Loading end" -PercentComplete 100 -Completed
+
+# Hide the console window now that modules are loaded
+$consoleHandle = Get-ConsoleWindowHandle
+if ($consoleHandle -ne [IntPtr]::Zero) {
+    Set-WindowVisibility -Handle $consoleHandle -Hide | Out-Null
+}
 #endregion Includes
 
 #region script info
@@ -308,6 +314,15 @@ function Install-Package {
                     throw "Chocolatey install failed with exit code: $($process.ExitCode)"
                 }
                 $script:LastInstallExitCode = $process.ExitCode
+            }
+            "script" {
+                if (-not $Package.InstallScript) {
+                    throw "InstallScript not found for package $($Package.Name)"
+                }
+
+                Write-Host "  Running install script for: $($Package.Name)" -ForegroundColor Gray
+                $scriptBlock = [ScriptBlock]::Create($Package.InstallScript)
+                & $scriptBlock
             }
             default {
                 throw "Unknown package source: $($Package.Source)"
@@ -785,6 +800,7 @@ $invokeAsSystemCode
                     "Invoke-FE3SyncUpdates",
                     "Invoke-PackageManifestQuery",
                     "Invoke-SystemTokenExtraction",
+                    "Invoke-AsSystem",
                     "Update-MSAToken",
                     "Filter-PackagesByArchitecture",
                     "Get-StoreAppManifest",
@@ -1413,6 +1429,33 @@ catch {
 
 "@
             }
+            elseif ($packageSource -eq "script") {
+                $escapedInstallScript = $package.InstallScript -replace "'", "''"
+
+                $scriptContent += @"
+
+`$currentMachinePackage++
+Update-Progress -PackageName '$packageName' -Current `$currentMachinePackage -Total `$totalMachinePackages
+
+Write-HostAndLog "Installing via script: $packageName" -ForegroundColor Cyan
+
+try {
+    `$scriptBlock = [ScriptBlock]::Create('$escapedInstallScript')
+    & `$scriptBlock
+    Write-HostAndLog "  Success!" -ForegroundColor Green
+    `$results += [pscustomobject]@{Name='$packageName'; Id='$packageId'; Source='$packageSource'; Success=`$true; RebootRequired=`$false}
+}
+catch {
+    Write-HostAndLog "  Error: `$(`$_.Exception.Message)" -ForegroundColor Red
+    Write-HostAndLog "  Error type: `$(`$_.Exception.GetType().FullName)" -ForegroundColor Red
+    if (`$_.Exception.InnerException) {
+        Write-HostAndLog "  Inner error: `$(`$_.Exception.InnerException.Message)" -ForegroundColor Red
+    }
+    `$results += [pscustomobject]@{Name='$packageName'; Id='$packageId'; Source='$packageSource'; Success=`$false; RebootRequired=`$false}
+}
+
+"@
+            }
         }
 
         # Add MSA token preparation if needed (convert boolean to string)
@@ -1492,7 +1535,7 @@ Start-Sleep -Seconds 2
         }
         
         Write-Host "Elevated process started (PID: $($elevatedProcess.Id))" -ForegroundColor Green
-        Write-Host "Surveillance de la progression..." -ForegroundColor Gray
+        Write-Host "Monitoring progress..." -ForegroundColor Gray
         
         # Monitor progress file
         $machinePackagesProcessed = 0
@@ -1512,13 +1555,13 @@ Start-Sleep -Seconds 2
 
                         if ($LoadingWindow) {
                             Update-LoadingWindow -Window $LoadingWindow `
-                                                -Message "Installation : $($progressData.PackageName) ($totalCurrentPackage/$totalPackages)..." `
+                                                -Message (tr 'UI.InstallingPackageProgress' -Parameters @($progressData.PackageName, $totalCurrentPackage, $totalPackages)) `
                                                 -Progress $percentComplete `
                                                 -Details $transcriptContent
                         }
 
                         if ($progressData.Current -ne $machinePackagesProcessed) {
-                            Write-Host "  Package en cours: $($progressData.PackageName) ($($progressData.Current)/$($progressData.Total))" -ForegroundColor Cyan
+                            Write-Host "  Current package: $($progressData.PackageName) ($($progressData.Current)/$($progressData.Total))" -ForegroundColor Cyan
                             $machinePackagesProcessed = $progressData.Current
                         }
                     }

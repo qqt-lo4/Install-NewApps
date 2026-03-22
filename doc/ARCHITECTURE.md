@@ -223,6 +223,37 @@ User-scope packages are installed directly without elevation in the current proc
 - Generate XML configuration from package definition
 - Execute Office Deployment Tool with configuration
 
+### Chocolatey
+
+```
+┌─────────────────┐     ┌─────────────────┐
+│  Chocolatey     │────►│  choco install  │
+│  (via WinGet)   │     │  <package> -y   │
+└─────────────────┘     └─────────────────┘
+```
+
+- Chocolatey is installed automatically via WinGet as a prerequisite
+- Packages use `choco install` with silent flags
+- Used for packages not available on WinGet or the Microsoft Store
+
+### Windows Features & Capabilities
+
+```
+┌─────────────────────┐     ┌────────────────────────────────┐
+│  windowsfeature     │────►│  Enable-WindowsOptionalFeature │
+│  (Hyper-V, WSL...)  │     │  -Online -All -NoRestart       │
+└─────────────────────┘     └────────────────────────────────┘
+
+┌─────────────────────┐     ┌────────────────────────────────┐
+│  windowscapability  │────►│  Add-WindowsCapability         │
+│  (RSAT tools...)    │     │  -Online                       │
+└─────────────────────┘     └────────────────────────────────┘
+```
+
+- Optional features: Hyper-V, Windows Sandbox, WSL, .NET Framework 3.5, Telnet Client
+- On-demand capabilities: RSAT tools (Active Directory, DNS, DHCP, etc.)
+- Supports prerequisite checks (edition, architecture, build number)
+
 ## GUI Architecture
 
 ### WPF in PowerShell

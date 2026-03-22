@@ -10,6 +10,7 @@
     "AlreadyInstalled": "Déjà installé",
     "Incompatible": "Incompatible",
     "InstallationInProgress": "Installation en cours",
+    "InstallingPackageProgress": "Installation : {0} ({1}/{2})...",
     "PreparingInstallation": "Préparation de l'installation...",
     "InstallationCompleted": "Installation terminée",
     "AllInstalledSuccessfully": "Tous les logiciels ont été installés avec succès ! ({0}/{1})",
