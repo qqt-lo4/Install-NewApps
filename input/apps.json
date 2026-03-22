@@ -205,7 +205,7 @@
         "Category": "Development",
         "Name": "Claude Code",
         "Id": "Anthropic.ClaudeCode",
-        "Scope": "machine",
+        "Scope": "user",
         "Source": "winget"
     },
     {
