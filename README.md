@@ -78,6 +78,9 @@ Native Windows components such as Hyper-V, Windows Sandbox, .NET Framework 3.5, 
 ### Office Deployment Tool (ODT)
 Microsoft Office products with customizable XML configuration. Supports multiple products, languages, and deployment channels.
 
+### Script
+Custom PowerShell script execution for packages that require special handling. The `InstallScript` property contains arbitrary PowerShell code that is executed directly. Useful for installers that don't return control properly (e.g., Discord) or need specific commands like `winget install`.
+
 ## Project Structure
 
 ```

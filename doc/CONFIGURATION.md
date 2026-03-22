@@ -116,6 +116,23 @@ For packages not available on WinGet or the Microsoft Store, Chocolatey can be u
 
 The `Id` must match the Chocolatey package ID (see [community.chocolatey.org](https://community.chocolatey.org/packages)).
 
+### Script Package
+
+For packages that require custom installation logic (e.g., installers that don't return control properly), use the `script` source with an `InstallScript` property containing arbitrary PowerShell code.
+
+```json
+{
+    "Category": "Internet",
+    "Name": "Discord",
+    "Id": "Discord.Discord",
+    "Scope": "user",
+    "Source": "script",
+    "InstallScript": "winget install Discord.Discord --silent --accept-package-agreements --accept-source-agreements"
+}
+```
+
+The `InstallScript` is executed synchronously — the script waits for it to complete before moving to the next package. Works in both user and machine scope.
+
 Chocolatey must be declared as a dependency via `Requires`:
 
 ```json
@@ -141,7 +158,7 @@ Chocolatey must be declared as a dependency via `Requires`:
 | `Name` | string | Display name shown in the GUI |
 | `Id` | string | Package identifier (WinGet ID, Store Product ID, or Chocolatey package ID) |
 | `Scope` | string | Installation scope: `machine` or `user` |
-| `Source` | string | Package source: `winget`, `msstore`, `odt`, or `chocolatey` |
+| `Source` | string | Package source: `winget`, `msstore`, `odt`, `chocolatey`, `windowsfeature`, `windowscapability`, or `script` |
 
 ### Optional Properties
 
@@ -152,6 +169,7 @@ Chocolatey must be declared as a dependency via `Requires`:
 | `DetectionScript` | string | Name of a PowerShell function for custom detection |
 | `PackageName` | string | AppX package family name (for Store apps) |
 | `ODT` | object | Office Deployment Tool configuration |
+| `InstallScript` | string | PowerShell code to execute for `script` source packages |
 
 ## Categories
 

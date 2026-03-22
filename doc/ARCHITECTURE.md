@@ -254,6 +254,19 @@ User-scope packages are installed directly without elevation in the current proc
 - On-demand capabilities: RSAT tools (Active Directory, DNS, DHCP, etc.)
 - Supports prerequisite checks (edition, architecture, build number)
 
+### Script
+
+```
+┌─────────────────┐     ┌─────────────────┐
+│  InstallScript  │────►│  ScriptBlock    │
+│  (from JSON)    │     │  execution      │
+└─────────────────┘     └─────────────────┘
+```
+
+- Executes arbitrary PowerShell code defined in the `InstallScript` property
+- Used for packages that need custom installation logic (e.g., Discord via `winget install`)
+- Works in both user and machine scope (elevated script)
+
 ## GUI Architecture
 
 ### WPF in PowerShell
