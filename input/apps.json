@@ -224,6 +224,13 @@
         "Source": "winget"
     },
     {
+        "Category": "Development",
+        "Name": "Postman",
+        "Id": "Postman.Postman",
+        "Scope": "user",
+        "Source": "winget"
+    },
+    {
         "Category": "Internet",
         "Name": "AnyDesk",
         "Id": "AnyDesk.AnyDesk",

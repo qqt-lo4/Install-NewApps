@@ -392,6 +392,17 @@ function Install-PackageFromInstaller {
     $uri = [System.Uri]$installerUrl
     $fileName = [System.IO.Path]::GetFileName($uri.LocalPath)
     $extension = [System.IO.Path]::GetExtension($fileName).ToLower()
+
+    # Fallback: if no extension in URL, use InstallerType from manifest
+    if ([string]::IsNullOrEmpty($extension) -and $Package.Installer.InstallerType) {
+        $typeToExt = @{ exe = ".exe"; msi = ".msi"; msix = ".msix"; appx = ".appx"; zip = ".zip"; inno = ".exe"; nullsoft = ".exe"; burn = ".exe"; wix = ".msi" }
+        $manifestType = $Package.Installer.InstallerType.ToLower()
+        if ($typeToExt.ContainsKey($manifestType)) {
+            $extension = $typeToExt[$manifestType]
+            $fileName = "$($Package.Id)$extension"
+            Write-Verbose "No extension in URL, using InstallerType '$manifestType' -> '$extension'"
+        }
+    }
     
     # Download installer
     $installerPath = Join-Path $TempPath $fileName
@@ -1033,6 +1044,24 @@ try {
     Write-HostAndLog "  File downloaded: `$fileName (`$fileSize bytes)" -ForegroundColor Gray
 
     `$extension = [System.IO.Path]::GetExtension(`$fileName).ToLower()
+
+    # Fallback: if no extension in URL, use InstallerType from manifest
+    if ([string]::IsNullOrEmpty(`$extension)) {
+        `$typeToExt = @{ exe = '.exe'; msi = '.msi'; msix = '.msix'; appx = '.appx'; zip = '.zip'; inno = '.exe'; nullsoft = '.exe'; burn = '.exe'; wix = '.msi' }
+        `$manifestType = '$installerType'.ToLower()
+        if (`$manifestType -and `$typeToExt.ContainsKey(`$manifestType)) {
+            `$extension = `$typeToExt[`$manifestType]
+            `$newFileName = `$fileName + `$extension
+            `$newInstallerPath = Join-Path `$tempPath `$newFileName
+            if (Test-Path `$installerPath) {
+                Move-Item -Path `$installerPath -Destination `$newInstallerPath -Force
+                `$installerPath = `$newInstallerPath
+                `$fileName = `$newFileName
+            }
+            Write-HostAndLog "  No extension in URL, using InstallerType '`$manifestType' -> '`$extension'" -ForegroundColor Gray
+        }
+    }
+
     Write-HostAndLog "  Extension detected: `$extension" -ForegroundColor Gray
 
     # Handle ZIP extraction if needed
