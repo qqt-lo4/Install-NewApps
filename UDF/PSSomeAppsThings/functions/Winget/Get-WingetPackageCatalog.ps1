@@ -46,7 +46,7 @@ function Get-WingetPackageCatalog {
     
     try {
         # Get the source URL
-        $sourceUrl = if ($Url) { 
+        $sourceUrl = if ($Url) {
             $Url 
         } else { 
             $wingetSource = Get-WingetSources | Where-Object { $_.Name -eq "winget" }
@@ -78,12 +78,24 @@ function Get-WingetPackageCatalog {
         # Download the .msix file
         $msixPath = Join-Path $OutputPath "source2.msix"
         Write-Host "Downloading Winget catalog from $sourceUrl..."
-        
-        try {
-            Invoke-WebRequest -Uri $sourceUrl -OutFile $msixPath -UseBasicParsing
-        }
-        catch {
-            throw "Failed to download catalog: $_"
+
+        # Download with retry to absorb transient DNS / connection failures.
+        # The CDN host is a CNAME chain to an edge network; the first lookup
+        # occasionally fails or is slow, but an immediate retry succeeds.
+        $maxDownloadAttempts = 3
+        $downloaded = $false
+        for ($attempt = 1; $attempt -le $maxDownloadAttempts -and -not $downloaded; $attempt++) {
+            try {
+                Invoke-WebRequest -Uri $sourceUrl -OutFile $msixPath -UseBasicParsing -TimeoutSec 120
+                $downloaded = $true
+            }
+            catch {
+                if ($attempt -eq $maxDownloadAttempts) {
+                    throw "Failed to download catalog after $maxDownloadAttempts attempts: $_"
+                }
+                Write-Warning "Catalog download attempt $attempt failed: $($_.Exception.Message). Retrying..."
+                Start-Sleep -Seconds 3
+            }
         }
         
         if (-not (Test-Path $msixPath)) {

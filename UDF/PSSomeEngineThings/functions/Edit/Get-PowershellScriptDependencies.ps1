@@ -2,7 +2,7 @@ function Get-PowershellScriptDependencies {
     <#
     .SYNOPSIS
         Extracts dependency paths from a PowerShell script
-
+        
     .DESCRIPTION
         Parses a PowerShell script file to find dot-sourced scripts and Import-Module statements
         that use $PSScriptRoot. Returns an array of dependency paths.

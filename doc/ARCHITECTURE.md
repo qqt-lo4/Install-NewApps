@@ -183,22 +183,22 @@ User-scope packages are installed directly without elevation in the current proc
 ### Microsoft Store Integration
 
 ```
-┌─────────────────┐     ┌─────────────────┐
-│  Display        │────►│   Get Package   │
-│  Catalog API    │     │   Manifest      │
-└─────────────────┘     └────────┬────────┘
-                                 │
-                                 ▼
-                        ┌─────────────────┐
-                        │   FE3 API for   │
-                        │   Download URLs │
-                        └────────┬────────┘
-                                 │
-                                 ▼
-                        ┌─────────────────┐
-                        │  Add-AppxPackage│
-                        │  or Provisioning│
-                        └─────────────────┘
+┌─────────────────┐     ┌───────────────────┐
+│  Display        │────►│   Get Package     │
+│  Catalog API    │     │   Manifest        │
+└─────────────────┘     └─────────┬─────────┘
+                                  │
+                                  ▼
+                        ┌───────────────────┐
+                        │   FE3 API for     │
+                        │   Download URLs   │
+                        └─────────┬─────────┘
+                                  │
+                                  ▼
+                        ┌───────────────────┐
+                        │  Add-AppxPackage  │
+                        │  or Provisioning  │
+                        └───────────────────┘
 ```
 
 - Query Display Catalog for app metadata
@@ -244,15 +244,16 @@ User-scope packages are installed directly without elevation in the current proc
 │  (Hyper-V, WSL...)  │     │  -Online -All -NoRestart       │
 └─────────────────────┘     └────────────────────────────────┘
 
-┌─────────────────────┐     ┌────────────────────────────────┐
-│  windowscapability  │────►│  Add-WindowsCapability         │
-│  (RSAT tools...)    │     │  -Online                       │
-└─────────────────────┘     └────────────────────────────────┘
+┌─────────────────────┐     ┌──────────────────────────────────────────────┐
+│  windowscapability  │────►│  dism.exe /Online /Add-Capability /NoRestart │
+│  (RSAT tools...)    │     │    /CapabilityName:X /CapabilityName:Y ...   │
+└─────────────────────┘     └──────────────────────────────────────────────┘
 ```
 
 - Optional features: Hyper-V, Windows Sandbox, WSL, .NET Framework 3.5, Telnet Client
 - On-demand capabilities: RSAT tools (Active Directory, DNS, DHCP, etc.)
 - Supports prerequisite checks (edition, architecture, build number)
+- All requested `windowscapability` packages are installed in **one** DISM call (single CBS transaction). `Get-WindowsCapability -Online` is queried once to resolve the full capability names. If the batch DISM call fails, the script falls back to per-capability `Add-WindowsCapability` so the failing item can be identified.
 
 ### Script
 

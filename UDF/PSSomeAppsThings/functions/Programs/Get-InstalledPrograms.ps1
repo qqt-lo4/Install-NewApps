@@ -29,9 +29,18 @@ function Get-InstalledPrograms {
     .PARAMETER IncludeAppx
         Include AppX/MSIX packages in the results
 
+    .PARAMETER Flat
+        Return flat objects: the raw underlying values are promoted to top-level properties
+        (after the summary fields) instead of being nested under _AdditionalProperties - the
+        registry and Windows Installer values for win32 programs, and the AppxPackage
+        members for AppX/MSIX packages. De-duplicated by name (a summary field hides a raw
+        value of the same name, e.g. Publisher, InstallDate). With this, displaying an
+        installed program is simply "show all properties" (the generic AllInfo view).
+
     .OUTPUTS
         PSCustomObject[] or OrderedDictionary[]. Installed program objects with Name, Type,
-        Publisher, Version, ProductCode, Scope, and _AdditionalProperties.
+        Publisher, Version, ProductCode, Scope, and _AdditionalProperties (or, with -Flat,
+        the raw registry/MSI/AppX values promoted to top-level properties).
 
     .EXAMPLE
         Get-InstalledPrograms -ProgramAndFeatures
@@ -42,7 +51,18 @@ function Get-InstalledPrograms {
 
     .NOTES
         Author  : Loïc Ade
-        Version : 1.0.0
+        Version : 1.1.0
+
+        CHANGELOG:
+
+        Version 1.1.0 - 2026-06-18 - Loïc Ade
+            - Added -Flat: promotes the raw registry / Windows Installer values (win32)
+              and AppxPackage members (AppX/MSIX) to top-level properties, after the
+              summary fields, de-duplicated by name. Lets an installed program be
+              displayed as a plain "all properties" object.
+
+        Version 1.0.0 - Loïc Ade
+            - Initial release.
     #>
     Param(
         [string]$ComputerName,
@@ -51,7 +71,8 @@ function Get-InstalledPrograms {
         [switch]$UseWMI,
         [switch]$ProgramAndFeatures,
         [switch]$AsHashtable,
-        [switch]$IncludeAppx
+        [switch]$IncludeAppx,
+        [switch]$Flat
     )
 
     function Test-PSDrive {
@@ -317,10 +338,40 @@ namespace SHLWAPIDLL {
                 $sortedResult = $aResult | Sort-Object -Property { $_['Name'] }
 
                 return $sortedResult | ForEach-Object -Process {
+                    $hItem = $_
+                    if ($Flat) {
+                        # Promote the raw values from _AdditionalProperties to top level,
+                        # after the summary fields, de-duplicated by name. Dictionaries
+                        # (Registry / WindowsInstaller) contribute their keys; the AppX
+                        # Package object contributes its members; scalars (KeyName) are
+                        # kept as-is.
+                        $hAdd  = $hItem['_AdditionalProperties']
+                        $hFlat = [ordered]@{}
+                        foreach ($k in $hItem.Keys) {
+                            if ($k -ne '_AdditionalProperties') { $hFlat[$k] = $hItem[$k] }
+                        }
+                        if ($hAdd -is [System.Collections.IDictionary]) {
+                            foreach ($sEntry in $hAdd.Keys) {
+                                $oValue = $hAdd[$sEntry]
+                                if ($oValue -is [System.Collections.IDictionary]) {
+                                    foreach ($k in $oValue.Keys) {
+                                        if (-not $hFlat.Contains($k)) { $hFlat[$k] = $oValue[$k] }
+                                    }
+                                } elseif (($oValue -is [string]) -or ($null -ne $oValue -and $oValue.GetType().IsValueType)) {
+                                    if (-not $hFlat.Contains($sEntry)) { $hFlat[$sEntry] = $oValue }
+                                } elseif ($null -ne $oValue) {
+                                    foreach ($p in $oValue.PSObject.Properties) {
+                                        if (-not $hFlat.Contains($p.Name)) { $hFlat[$p.Name] = $p.Value }
+                                    }
+                                }
+                            }
+                        }
+                        $hItem = $hFlat
+                    }
                     $o = if($AsHashtable) {
-                        $_
+                        $hItem
                     } else {
-                        [pscustomobject]$_
+                        [pscustomobject]$hItem
                     }
                     $o.PSTypeNames.Insert(0, "Installed Program") ;
                     $o

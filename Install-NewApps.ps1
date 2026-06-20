@@ -7,6 +7,16 @@ $iModulesCount = 9
 $i = 0
 
 #region Includes
+# Remove the Mark-of-the-Web from the bundled native/.NET DLLs before importing.
+# When this folder is downloaded from another machine, Windows tags every file
+# with a Zone.Identifier (MOTW). Loading the DLLs of powershell-yaml (YamlDotNet)
+# and PSSQLite (SQLite.Interop / System.Data.SQLite) then fails. Only these two
+# modules ship DLLs, so we unblock just their *.dll files.
+foreach ($dllModule in 'powershell-yaml', 'PSSQLite') {
+    Get-ChildItem -Path (Join-Path $PSScriptRoot "UDF\$dllModule") -Recurse -Filter '*.dll' -File -ErrorAction SilentlyContinue |
+        Unblock-File -ErrorAction SilentlyContinue
+}
+
 Write-Progress -Activity "Loading script modules" -Status "PSSomeAppsThings" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
 Import-Module $PSScriptRoot\UDF\PSSomeAppsThings -WarningAction SilentlyContinue -Force
 Write-Progress -Activity "Loading script modules" -Status "PSSomeCoreThings" -PercentComplete (($($i++; $i) / $iModulesCount) * 100)
@@ -874,6 +884,8 @@ $msStoreFunctionsCode
 "@
         
         $packageIndex = 0
+        $capabilityBatchEmitted = $false
+        $capabilityPackagesForBatch = @($machinePackages | Where-Object { $_.Source -eq "windowscapability" })
         foreach ($package in $machinePackages) {
             $packageIndex++
 
@@ -1324,42 +1336,119 @@ catch {
 "@
             }
             elseif ($packageSource -eq "windowscapability") {
+                # Emit a single batched block for ALL windowscapability packages on first encounter.
+                # Subsequent capability packages in the loop are skipped — they are processed by the batch.
+                # Rationale: Add-WindowsCapability invoked one-by-one is very slow because each call
+                # enumerates capabilities and triggers its own CBS/TrustedInstaller transaction.
+                # DISM /Add-Capability accepts repeated /CapabilityName:X to install many in one transaction.
+                if ($capabilityBatchEmitted) {
+                    continue
+                }
+                $capabilityBatchEmitted = $true
+
+                # Build the package list literal injected into the generated script
+                $capabilityListLines = foreach ($cap in $capabilityPackagesForBatch) {
+                    $capName = ($cap.Name -replace "'", "''")
+                    $capId   = ($cap.Id   -replace "'", "''")
+                    "    [pscustomobject]@{ Name='$capName'; Id='$capId' }"
+                }
+                $capabilityListLiteral = $capabilityListLines -join "`r`n"
+
                 $scriptContent += @"
 
-`$currentMachinePackage++
-Update-Progress -PackageName '$packageName' -Current `$currentMachinePackage -Total `$totalMachinePackages
+# ----- Windows Capabilities (RSAT and similar) - batched install -----
+`$capabilityRequests = @(
+$capabilityListLiteral
+)
 
-Write-HostAndLog "Installing Windows Capability: $packageName" -ForegroundColor Cyan
-Write-HostAndLog "  Capability: $packageId" -ForegroundColor Gray
+Write-HostAndLog "Installing $($capabilityPackagesForBatch.Count) Windows Capabilities (RSAT and similar) in batch..." -ForegroundColor Cyan
 
 try {
-    # Find the full capability name (version suffix varies)
-    `$capability = Get-WindowsCapability -Online | Where-Object { `$_.Name -like '$packageId*' } | Select-Object -First 1
+    Write-HostAndLog "  Enumerating available Windows Capabilities (single query)..." -ForegroundColor Gray
+    `$allCapabilities = Get-WindowsCapability -Online -ErrorAction Stop
 
-    if (-not `$capability) {
-        throw "Windows Capability '$packageId' not found on this system"
+    `$toInstall = @()
+    foreach (`$req in `$capabilityRequests) {
+        `$cap = `$allCapabilities | Where-Object { `$_.Name -like "`$(`$req.Id)*" } | Select-Object -First 1
+
+        if (-not `$cap) {
+            `$currentMachinePackage++
+            Update-Progress -PackageName `$req.Name -Current `$currentMachinePackage -Total `$totalMachinePackages
+            Write-HostAndLog "  [`$(`$req.Name)] Capability '`$(`$req.Id)' not found on this system" -ForegroundColor Red
+            `$results += [pscustomobject]@{ Name=`$req.Name; Id=`$req.Id; Source='windowscapability'; Success=`$false; RebootRequired=`$false }
+            continue
+        }
+        if (`$cap.State -eq 'Installed') {
+            `$currentMachinePackage++
+            Update-Progress -PackageName `$req.Name -Current `$currentMachinePackage -Total `$totalMachinePackages
+            Write-HostAndLog "  [`$(`$req.Name)] Already installed" -ForegroundColor Yellow
+            `$results += [pscustomobject]@{ Name=`$req.Name; Id=`$req.Id; Source='windowscapability'; Success=`$true; RebootRequired=`$false }
+            continue
+        }
+        `$toInstall += [pscustomobject]@{ Name=`$req.Name; Id=`$req.Id; CapabilityName=`$cap.Name }
     }
 
-    if (`$capability.State -eq 'Installed') {
-        Write-HostAndLog "  Already installed" -ForegroundColor Yellow
-        `$results += [pscustomobject]@{Name='$packageName'; Id='$packageId'; Source='$packageSource'; Success=`$true; RebootRequired=`$false}
+    if (`$toInstall.Count -gt 0) {
+        # Show a single status line for the whole batch so the UI does not appear stuck
+        # on a stale per-package name during the long DISM call.
+        `$batchLabel = "RSAT batch (`$(`$toInstall.Count) capabilities)"
+        Update-Progress -PackageName `$batchLabel -Current (`$currentMachinePackage + 1) -Total `$totalMachinePackages
+
+        Write-HostAndLog "  Installing `$(`$toInstall.Count) capabilities via a single DISM transaction..." -ForegroundColor Cyan
+        `$dismArgs = @('/Online', '/Add-Capability', '/NoRestart', '/Quiet')
+        foreach (`$item in `$toInstall) {
+            `$dismArgs += "/CapabilityName:`$(`$item.CapabilityName)"
+            Write-HostAndLog "    + `$(`$item.CapabilityName)" -ForegroundColor Gray
+        }
+
+        `$dismProcess = Start-Process -FilePath 'dism.exe' -ArgumentList `$dismArgs -Wait -PassThru -WindowStyle Hidden
+        `$dismExitCode = `$dismProcess.ExitCode
+        `$rebootRequired = (`$dismExitCode -eq 3010)
+
+        if (`$dismExitCode -eq 0 -or `$dismExitCode -eq 3010) {
+            if (`$rebootRequired) { Write-HostAndLog "  Batch install succeeded (reboot required)" -ForegroundColor Yellow }
+            else { Write-HostAndLog "  Batch install succeeded" -ForegroundColor Green }
+            foreach (`$item in `$toInstall) {
+                `$currentMachinePackage++
+                Update-Progress -PackageName `$item.Name -Current `$currentMachinePackage -Total `$totalMachinePackages
+                `$results += [pscustomobject]@{ Name=`$item.Name; Id=`$item.Id; Source='windowscapability'; Success=`$true; RebootRequired=`$rebootRequired }
+            }
+        }
+        else {
+            # Batch failed - fall back to per-capability so we can report which one(s) failed.
+            Write-HostAndLog "  Batch DISM call failed (exit `$dismExitCode). Falling back to individual installs to identify the failure(s)..." -ForegroundColor Yellow
+            foreach (`$item in `$toInstall) {
+                `$currentMachinePackage++
+                Update-Progress -PackageName `$item.Name -Current `$currentMachinePackage -Total `$totalMachinePackages
+                try {
+                    `$capResult = Add-WindowsCapability -Online -Name `$item.CapabilityName -ErrorAction Stop
+                    `$reboot = `$capResult.RestartNeeded
+                    if (`$reboot) { Write-HostAndLog "    OK (reboot required): `$(`$item.Name)" -ForegroundColor Yellow }
+                    else { Write-HostAndLog "    OK: `$(`$item.Name)" -ForegroundColor Green }
+                    `$results += [pscustomobject]@{ Name=`$item.Name; Id=`$item.Id; Source='windowscapability'; Success=`$true; RebootRequired=`$reboot }
+                }
+                catch {
+                    Write-HostAndLog "    FAIL: `$(`$item.Name) - `$(`$_.Exception.Message)" -ForegroundColor Red
+                    `$results += [pscustomobject]@{ Name=`$item.Name; Id=`$item.Id; Source='windowscapability'; Success=`$false; RebootRequired=`$false }
+                }
+            }
+        }
     }
     else {
-        Write-HostAndLog "  Adding capability: `$(`$capability.Name)" -ForegroundColor Gray
-        `$capResult = Add-WindowsCapability -Online -Name `$capability.Name -ErrorAction Stop
-        `$reboot = `$capResult.RestartNeeded
-        if (`$reboot) { Write-HostAndLog "  Success! (reboot required)" -ForegroundColor Yellow }
-        else { Write-HostAndLog "  Success!" -ForegroundColor Green }
-        `$results += [pscustomobject]@{Name='$packageName'; Id='$packageId'; Source='$packageSource'; Success=`$true; RebootRequired=`$reboot}
+        Write-HostAndLog "  Nothing to install (all requested capabilities are already present or unavailable)" -ForegroundColor Gray
     }
 }
 catch {
-    Write-HostAndLog "  Error: `$(`$_.Exception.Message)" -ForegroundColor Red
+    Write-HostAndLog "  Error during batch capability install: `$(`$_.Exception.Message)" -ForegroundColor Red
     Write-HostAndLog "  Error type: `$(`$_.Exception.GetType().FullName)" -ForegroundColor Red
     if (`$_.Exception.InnerException) {
         Write-HostAndLog "  Inner error: `$(`$_.Exception.InnerException.Message)" -ForegroundColor Red
     }
-    `$results += [pscustomobject]@{Name='$packageName'; Id='$packageId'; Source='$packageSource'; Success=`$false; RebootRequired=`$false}
+    foreach (`$req in `$capabilityRequests) {
+        if (-not (`$results | Where-Object { `$_.Source -eq 'windowscapability' -and `$_.Id -eq `$req.Id })) {
+            `$results += [pscustomobject]@{ Name=`$req.Name; Id=`$req.Id; Source='windowscapability'; Success=`$false; RebootRequired=`$false }
+        }
+    }
 }
 
 "@

@@ -23,6 +23,7 @@ function Convert-HashtableToURLArguments {
     #>
     Param(
         [Parameter(Mandatory, Position = 0)]
+        [AllowNull()]
         [hashtable]$Arguments
     )
     $sResult = ""

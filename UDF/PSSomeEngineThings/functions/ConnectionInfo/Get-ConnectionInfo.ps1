@@ -74,6 +74,9 @@ function Get-ConnectionInfo {
                     $Global:ConnectionInfo = @{}
                 }
                 $Global:ConnectionInfo.$Name = $hReadConnectInfoResults
+                if ($null -eq $Global:Config) {
+                    $Global:Config = @{}
+                }
                 if ($null -eq $Global:Config.Apps) {
                     $Global:Config.Apps = @{}
                 }
