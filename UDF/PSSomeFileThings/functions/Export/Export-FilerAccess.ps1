@@ -160,7 +160,7 @@ function Export-FilerAccess {
             $iGroupIndex++
             $aEntries = @($ShareDefinitions[$sGroupName])
 
-            $sTab = ($sGroupName -replace '[^\w]', '_').ToLower()
+            $sTab = $sGroupName
             if ($sTab -notin $aTabs) { $aTabs += $sTab }
 
             Write-Progress -Activity $sCallerName -Status "$sGroupName - Collecting..." `
